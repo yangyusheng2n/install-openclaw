@@ -1,36 +1,75 @@
 # install-openclaw
 
-#### Description
-一建安装小龙虾
+One-command installation for OpenCLAW tool
 
-#### Software Architecture
-Software architecture description
+## Description
 
-#### Installation
+install-openclaw is a one-click installation script that automatically detects your system environment and installs OpenCLAW tool. Supports macOS and major Linux distributions.
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## Features
 
-#### Instructions
+- Automatic OS detection (macOS / Linux)
+- Automatic Node.js 22+ installation (if not present)
+- One-command OpenCLAW installation
+- Supports multiple package managers (brew / apt-get / yum / dnf / pacman)
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## Installation
 
-#### Contribution
+### Option 1: Run directly
 
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
+```bash
+bash install-openclaw.sh
+```
 
+### Option 2: Add executable permission
 
-#### Gitee Feature
+```bash
+chmod +x install-openclaw.sh
+./install-openclaw.sh
+```
 
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+## Usage
+
+After installation, run the following commands to complete setup:
+
+```bash
+# Install daemon
+openclaw onboard --install-daemon
+
+# Start Dashboard
+openclaw dashboard
+```
+
+## System Requirements
+
+- **OS**: macOS or Linux
+- **Node.js**: 22.0.0+ (installed automatically by script)
+- **Package Manager**: Homebrew (macOS), apt-get/yum/dnf/pacman (Linux)
+
+## Script Validation
+
+Validate the script before running:
+
+```bash
+# Syntax check
+bash -n install-openclaw.sh
+
+# ShellCheck static analysis (requires shellcheck)
+shellcheck install-openclaw.sh
+```
+
+## Contribution
+
+1. Fork the repository
+2. Create feat/xxx branch
+3. Commit your code
+4. Create Pull Request
+
+## Links
+
+- [OpenCLAW Official Website](https://openclaw.ai)
+- [SiliconFlow Referral Link](https://cloud.siliconflow.cn/i/ABtlZLIj) (free credits)
+
+## License
+
+MIT License
