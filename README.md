@@ -1,37 +1,95 @@
 # install-openclaw
 
-#### 介绍
-一键安装小龙虾
+一行命令安装 OpenCLAW 工具
 
-#### 软件架构
-软件架构说明
+## 介绍
 
+install-openclaw 是一个一键安装脚本，自动检测系统环境并安装 OpenCLAW 工具。支持 macOS、Windows 和主流 Linux 发行版。
 
-#### 安装教程
+## 功能特性
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+- 自动检测操作系统（macOS / Windows / Linux）
+- 自动检测并安装 Node.js 22+（如未安装）
+- 一键安装 OpenCLAW
+- 支持多种安装方式：
+  - macOS: Homebrew
+  - Linux: apt-get / yum / dnf / pacman
+  - Windows: winget / MSI 静默安装
 
-#### 使用说明
+## 安装教程
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+### macOS / Linux
 
-#### 参与贡献
+```bash
+bash install-openclaw.sh
+```
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+或添加执行权限：
 
+```bash
+chmod +x install-openclaw.sh
+./install-openclaw.sh
+```
 
-#### 特技
+### Windows
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+在 PowerShell 或 Git Bash 中运行：
+
+```powershell
+# PowerShell
+bash install-openclaw.sh
+
+# 或 Git Bash
+./install-openclaw.sh
+```
+
+注意：Windows 上首次运行脚本安装 Node.js 后，需要**重新打开终端**再次运行脚本完成 OpenCLAW 安装。
+
+## 使用说明
+
+安装完成后，运行以下命令完成配置：
+
+```bash
+# 安装守护进程
+openclaw onboard --install-daemon
+
+# 启动 Dashboard
+openclaw dashboard
+```
+
+## 系统要求
+
+- **操作系统**: macOS / Windows 10+ / Linux
+- **Node.js**: 22.0.0+（脚本会自动安装）
+- **包管理器**: 
+  - macOS: Homebrew
+  - Linux: apt-get / yum / dnf / pacman
+  - Windows: winget (推荐) 或 MSI 安装包
+
+## 脚本检查
+
+安装前可进行语法检查：
+
+```bash
+# 语法检查
+bash -n install-openclaw.sh
+
+# ShellCheck 静态分析（需安装 shellcheck）
+shellcheck install-openclaw.sh
+```
+
+## 参与贡献
+
+1. Fork 本仓库
+2. 新建 feat/xxx 分支
+3. 提交代码
+4. 新建 Pull Request
+
+## 相关链接
+
+- [OpenCLAW 官网](https://openclaw.ai)
+- [SiliconFlow 邀请链接](https://cloud.siliconflow.cn/i/ABtlZLIj)（送积分）
+
+## 许可证
+
+MIT License

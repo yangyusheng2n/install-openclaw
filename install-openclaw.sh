@@ -75,12 +75,63 @@ install_node() {
             echo -e "${RED}✗ 无法识别包管理器，请手动安装 Node.js 22+${NC}"
             exit 1
         fi
+    elif [ "$os" = "windows" ]; then
+        install_node_windows
     else
         echo -e "${RED}✗ 不支持的操作系统: $os${NC}"
         exit 1
     fi
     
     echo -e "${GREEN}✓ Node.js 安装完成${NC}"
+}
+
+install_node_windows() {
+    if command -v winget &> /dev/null; then
+        echo "使用 winget 安装 Node.js LTS..."
+        
+        if winget install -e --id OpenJS.NodeJS.LTS --accept-source-ads --accept-package-agreements 2>/dev/null; then
+            echo -e "${GREEN}✓ Node.js 安装完成${NC}"
+            echo ""
+            echo -e "${YELLOW}⚠ 请关闭当前终端并重新打开，然后再次运行此脚本完成 OpenCLAW 安装${NC}"
+            echo ""
+            exit 0
+        else
+            echo -e "${YELLOW}⚠ winget 安装失败，尝试直接下载安装...${NC}"
+            install_node_windows_manual
+        fi
+    else
+        echo -e "${YELLOW}⚠ 未检测到 winget，尝试直接下载安装...${NC}"
+        install_node_windows_manual
+    fi
+}
+
+install_node_windows_manual() {
+    local temp_dir="$TEMP/node_install_$$"
+    local installer="$temp_dir/node-installer.msi"
+    
+    mkdir -p "$temp_dir"
+    
+    echo "正在下载 Node.js 安装包..."
+    
+    if curl -fsSL -o "$installer" "https://nodejs.org/dist/v22.12.0/node-v22.12.0-x64.msi"; then
+        echo "正在安装 Node.js..."
+        
+        if msiexec /i "$installer" /quiet /qn /norestart; then
+            echo -e "${GREEN}✓ Node.js 安装完成${NC}"
+            echo ""
+            echo -e "${YELLOW}⚠ 请关闭当前终端并重新打开，然后再次运行此脚本完成 OpenCLAW 安装${NC}"
+            rm -rf "$temp_dir"
+            exit 0
+        else
+            echo -e "${RED}✗ Node.js 安装失败，请手动下载安装: https://nodejs.org/dist/v22.12.0/node-v22.12.0-x64.msi${NC}"
+            rm -rf "$temp_dir"
+            exit 1
+        fi
+    else
+        echo -e "${RED}✗ 下载失败，请手动下载安装: https://nodejs.org/dist/v22.12.0/node-v22.12.0-x64.msi${NC}"
+        rm -rf "$temp_dir"
+        exit 1
+    fi
 }
 
 install_openclaw() {
@@ -90,12 +141,23 @@ install_openclaw() {
     
     if [ "$os" = "macos" ] || [ "$os" = "linux" ]; then
         curl -fsSL https://openclaw.ai/install.sh | bash
+    elif [ "$os" = "windows" ]; then
+        install_openclaw_windows
     else
         echo -e "${RED}✗ 不支持的操作系统${NC}"
         exit 1
     fi
     
     echo -e "${GREEN}✓ OpenCLAW 安装完成${NC}"
+}
+
+install_openclaw_windows() {
+    if command -v npm &> /dev/null; then
+        npm install -g openclaw
+    else
+        echo -e "${RED}✗ Node.js 未正确安装，请先安装 Node.js${NC}"
+        exit 1
+    fi
 }
 
 main() {
@@ -106,16 +168,18 @@ main() {
     if ! check_node; then
         install_node
         
-        if [ "$(detect_os)" = "macos" ]; then
+        local new_os=$(detect_os)
+        
+        if [ "$new_os" = "macos" ]; then
             export PATH="/opt/homebrew/bin:$PATH"
-        elif [ "$(detect_os)" = "linux" ]; then
+        elif [ "$new_os" = "linux" ]; then
             export PATH="/usr/local/bin:/usr/bin:$PATH"
+        elif [ "$new_os" = "windows" ]; then
+            export PATH="$PATH:/c/Program Files/nodejs:/c/Program Files (x86)/nodejs"
         fi
         
         if ! check_node; then
-            echo -e "${YELLOW}⚠ Node.js 安装完成，请重新打开终端或运行: source ~/.bashrc ~/.zshrc${NC}"
-            echo "重新加载后，手动运行以下命令继续安装 OpenCLAW："
-            echo "  curl -fsSL https://openclaw.ai/install.sh | bash"
+            echo -e "${YELLOW}⚠ Node.js 安装完成，请重新打开终端后再次运行此脚本${NC}"
             exit 0
         fi
     fi
