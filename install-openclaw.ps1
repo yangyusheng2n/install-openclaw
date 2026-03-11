@@ -1,7 +1,9 @@
 # OpenCLAW Windows PowerShell 安装脚本
-# 使用方式: irm https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.ps1 | iex
+# 使用方式: 
+#   PowerShell: irm https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.ps1 | iex
+#   CMD: powershell -Command "Invoke-WebRequest -Uri 'https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.ps1' -OutFile $env:TEMP\install-openclaw.ps1; & $env:TEMP\install-openclaw.ps1"
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "  OpenCLAW 自动安装脚本 (Windows)" -ForegroundColor Cyan
@@ -94,52 +96,46 @@ function Install-OpenCLAW {
     Write-Host ""
     Write-Host "正在安装 OpenCLAW..." -ForegroundColor Cyan
     
-    # 刷新环境变量
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    
-    # 添加 npm 全局 bin 路径到 PATH
-    $npmPrefix = npm config get prefix
-    if ($npmPrefix -and (Test-Path "$npmPrefix")) {
-        $npmBinPath = "$npmPrefix"
-        if (-not $env:Path.Contains($npmBinPath)) {
-            $env:Path = "$npmBinPath;$env:Path"
-        }
-    }
-    
-    if (Get-Command npm -ErrorAction SilentlyContinue) {
-        try {
-            npm install -g openclaw
-            Write-Host "✓ OpenCLAW 安装完成" -ForegroundColor Green
-            
-            # 再次添加 npm bin 路径以确保 openclaw 命令可用
-            $npmPrefix = npm config get prefix
-            if ($npmPrefix -and (Test-Path "$npmPrefix")) {
-                $npmBinPath = "$npmPrefix"
-                if (-not $env:Path.Contains($npmBinPath)) {
-                    $env:Path = "$npmBinPath;$env:Path"
+    try {
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        
+        if (Get-Command npm -ErrorAction SilentlyContinue) {
+            try {
+                $npmPrefix = npm config get prefix 2>$null
+                if ($npmPrefix -and (Test-Path "$npmPrefix")) {
+                    if (-not $env:Path.Contains($npmPrefix)) {
+                        $env:Path = "$npmPrefix;$env:Path"
+                    }
                 }
+                
+                npm install -g openclaw 2>$null
+                Write-Host "✓ OpenCLAW 安装完成" -ForegroundColor Green
+                
+                try {
+                    $npmPrefix = npm config get prefix 2>$null
+                    if ($npmPrefix -and (Test-Path "$npmPrefix")) {
+                        if (-not $env:Path.Contains($npmPrefix)) {
+                            $env:Path = "$npmPrefix;$env:Path"
+                        }
+                    }
+                    
+                    $openclawPath = Get-Command openclaw -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
+                    if ($openclawPath) {
+                        Write-Host "✓ openclaw 命令已可用: $openclawPath" -ForegroundColor Green
+                    } else {
+                        Write-Host "⚠ openclaw 命令暂未生效，请重新打开 PowerShell 后使用" -ForegroundColor Yellow
+                    }
+                } catch {
+                    Write-Host "⚠ openclaw 验证失败，请重新打开 PowerShell" -ForegroundColor Yellow
+                }
+            } catch {
+                Write-Host "✗ OpenCLAW 安装失败: $_" -ForegroundColor Red
             }
-            
-            Write-Host ""
-            Write-Host "正在验证 openclaw 命令..." -ForegroundColor Cyan
-            
-            # 尝试刷新命令缓存并验证
-            $openclawPath = Get-Command openclaw -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
-            if ($openclawPath) {
-                Write-Host "✓ openclaw 命令已可用: $openclawPath" -ForegroundColor Green
-            } else {
-                Write-Host "⚠ openclaw 命令暂未生效，请重新打开 PowerShell 后使用" -ForegroundColor Yellow
-                Write-Host ""
-                Write-Host "如需立即生效，可在当前窗口运行以下命令：" -ForegroundColor Yellow
-                Write-Host "  `$env:Path = \"$npmPrefix;`$env:Path\"" -ForegroundColor White
-            }
-        } catch {
-            Write-Host "✗ OpenCLAW 安装失败: $_" -ForegroundColor Red
-            exit 1
+        } else {
+            Write-Host "✗ Node.js 未正确安装，请先安装 Node.js" -ForegroundColor Red
         }
-    } else {
-        Write-Host "✗ Node.js 未正确安装，请先安装 Node.js" -ForegroundColor Red
-        exit 1
+    } catch {
+        Write-Host "⚠ 安装过程出现问题: $_" -ForegroundColor Yellow
     }
 }
 
