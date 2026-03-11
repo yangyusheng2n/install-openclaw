@@ -97,10 +97,42 @@ function Install-OpenCLAW {
     # 刷新环境变量
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
     
+    # 添加 npm 全局 bin 路径到 PATH
+    $npmPrefix = npm config get prefix
+    if ($npmPrefix -and (Test-Path "$npmPrefix")) {
+        $npmBinPath = "$npmPrefix"
+        if (-not $env:Path.Contains($npmBinPath)) {
+            $env:Path = "$npmBinPath;$env:Path"
+        }
+    }
+    
     if (Get-Command npm -ErrorAction SilentlyContinue) {
         try {
             npm install -g openclaw
             Write-Host "✓ OpenCLAW 安装完成" -ForegroundColor Green
+            
+            # 再次添加 npm bin 路径以确保 openclaw 命令可用
+            $npmPrefix = npm config get prefix
+            if ($npmPrefix -and (Test-Path "$npmPrefix")) {
+                $npmBinPath = "$npmPrefix"
+                if (-not $env:Path.Contains($npmBinPath)) {
+                    $env:Path = "$npmBinPath;$env:Path"
+                }
+            }
+            
+            Write-Host ""
+            Write-Host "正在验证 openclaw 命令..." -ForegroundColor Cyan
+            
+            # 尝试刷新命令缓存并验证
+            $openclawPath = Get-Command openclaw -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
+            if ($openclawPath) {
+                Write-Host "✓ openclaw 命令已可用: $openclawPath" -ForegroundColor Green
+            } else {
+                Write-Host "⚠ openclaw 命令暂未生效，请重新打开 PowerShell 后使用" -ForegroundColor Yellow
+                Write-Host ""
+                Write-Host "如需立即生效，可在当前窗口运行以下命令：" -ForegroundColor Yellow
+                Write-Host "  `$env:Path = \"$npmPrefix;`$env:Path\"" -ForegroundColor White
+            }
         } catch {
             Write-Host "✗ OpenCLAW 安装失败: $_" -ForegroundColor Red
             exit 1

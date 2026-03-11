@@ -139,6 +139,15 @@ install_openclaw() {
     echo ""
     echo "正在安装 OpenCLAW..."
     
+    if command -v npm &> /dev/null; then
+        local npm_prefix=$(npm config get prefix 2>/dev/null || echo "/usr/local")
+        if [ -d "$npm_prefix/bin" ]; then
+            export PATH="$npm_prefix/bin:$PATH"
+        elif [ -d "$npm_prefix" ]; then
+            export PATH="$npm_prefix:$PATH"
+        fi
+    fi
+    
     if [ "$os" = "macos" ] || [ "$os" = "linux" ]; then
         curl -fsSL https://openclaw.ai/install.sh | bash
     elif [ "$os" = "windows" ]; then
