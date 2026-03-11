@@ -10,8 +10,35 @@ Write-Host "  OpenCLAW 自动安装脚本 (Windows)" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host ""
 
-function Get-OS {
-    return "windows"
+function Add-NpmToPath {
+    try {
+        $npmPrefix = npm config get prefix 2>$null
+        if (-not $npmPrefix) { return }
+        
+        $npmPath = $npmPrefix
+        if (Test-Path "$npmPath\node_modules") {
+            $npmPath = "$npmPath\node_modules\npm\bin"
+        }
+        
+        $userPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
+        
+        if ($userPath -and $userPath.Contains($npmPath)) {
+            return
+        }
+        
+        if ($userPath) {
+            $newPath = "$npmPath;$userPath"
+        } else {
+            $newPath = $npmPath
+        }
+        
+        [System.Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+        $env:Path = "$npmPath;" + [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        
+        Write-Host "✓ 已添加 npm 路径到系统 PATH" -ForegroundColor Green
+    } catch {
+        Write-Host "⚠ 无法自动添加 PATH，请手动添加" -ForegroundColor Yellow
+    }
 }
 
 function Test-NodeInstalled {
@@ -144,8 +171,13 @@ $os = Get-OS
 Write-Host "检测到操作系统: $os"
 Write-Host ""
 
+# 刷新环境变量并添加 npm 路径到 PATH
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+Add-NpmToPath
+
 if (-not (Test-NodeInstalled)) {
     Install-Node
+    Add-NpmToPath
 }
 
 # 再次检查 Node.js
