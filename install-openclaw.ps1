@@ -101,10 +101,36 @@ function Install-OpenCLAW {
     
     if (Get-Command npm -ErrorAction SilentlyContinue) {
         Write-Host "清理 npm 缓存..."
-        npm cache clean --force 2>$null
+        npm cache clean --force
         
         Write-Host "安装 openclaw..."
-        npm install -g openclaw 2>$null
+        Write-Host "------------------------------------------"
+        
+        $psi = New-Object System.Diagnostics.ProcessStartInfo
+        $psi.FileName = "npm"
+        $psi.Arguments = "install -g openclaw"
+        $psi.UseShellExecute = $false
+        $psi.RedirectStandardOutput = $true
+        $psi.RedirectStandardError = $true
+        $psi.WorkingDirectory = $env:USERPROFILE
+        
+        $process = [System.Diagnostics.Process]::Start($psi)
+        
+        while (-not $process.HasExited) {
+            $output = $process.StandardOutput.ReadToEnd()
+            if ($output) {
+                Write-Host $output -NoNewline
+            }
+            Start-Sleep -Milliseconds 500
+        }
+        
+        $stdout = $process.StandardOutput.ReadToEnd()
+        $stderr = $process.StandardError.ReadToEnd()
+        
+        if ($stdout) { Write-Host $stdout }
+        if ($stderr) { Write-Host $stderr -ForegroundColor Yellow }
+        
+        Write-Host "------------------------------------------"
         Write-Host "OpenCLAW 安装完成" -ForegroundColor Green
         
         Add-NpmPath
