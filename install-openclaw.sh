@@ -30,22 +30,23 @@ install_git() {
             brew install git
         else
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            export PATH="/opt/homebrew/bin:$PATH"
             brew install git
         fi
     elif [ "$os" = "linux" ]; then
         if command -v apt-get &> /dev/null; then
             if [ "$EUID" -ne 0 ]; then
-                echo -e "${YELLOW}⚠ 需要 sudo 权限安装 Git${NC}"
+                echo -e "${YELLOW}需要 sudo 权限安装 Git${NC}"
             fi
             apt-get update && apt-get install -y git
         elif command -v yum &> /dev/null; then
             if [ "$EUID" -ne 0 ]; then
-                echo -e "${YELLOW}⚠ 需要 sudo 权限安装 Git${NC}"
+                echo -e "${YELLOW}需要 sudo 权限安装 Git${NC}"
             fi
             yum install -y git
         elif command -v dnf &> /dev/null; then
             if [ "$EUID" -ne 0 ]; then
-                echo -e "${YELLOW}⚠ 需要 sudo 权限安装 Git${NC}"
+                echo -e "${YELLOW}需要 sudo 权限安装 Git${NC}"
             fi
             dnf install -y git
         elif command -v pacman &> /dev/null; then
@@ -88,6 +89,7 @@ install_node() {
             brew link node@22
         else
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            export PATH="/opt/homebrew/bin:$PATH"
             brew install node@22
             brew link node@22
         fi
@@ -261,7 +263,9 @@ main() {
     fi
     
     echo "刷新环境变量..."
+    export PATH="/opt/homebrew/bin:$PATH"
     export PATH="$(npm config get prefix 2>/dev/null || echo /usr/local)/bin:$PATH"
+    export PATH="/usr/local/bin:$PATH"
     
     echo ""
     install_openclaw
