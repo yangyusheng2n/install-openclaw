@@ -1,8 +1,19 @@
 # OpenCLAW Windows 安装脚本
 $ErrorActionPreference = "SilentlyContinue"
 
+$Green = "[32m"
+$Yellow = "[33m"
+$Red = "[31m"
+$Cyan = "[36m"
+
+function Write-HostColor {
+    param($Color, $Message)
+    $escaped = "`e$Color$Message`e[0m"
+    Write-Host $escaped
+}
+
 Write-Host "=========================================="
-Write-Host "  OpenCLAW 自动安装脚本 (Windows)"
+Write-HostColor -Color $Cyan -Message "  OpenCLAW 自动安装脚本 (Windows)"
 Write-Host "=========================================="
 Write-Host ""
 
@@ -13,7 +24,7 @@ function Add-NpmPath {
         if ($currentPath -notlike "*$npmPath*") {
             [System.Environment]::SetEnvironmentVariable("Path", "$npmPath;$currentPath", "User")
             $env:Path = "$npmPath;$env:Path"
-            Write-Host "已添加 npm 路径到 PATH" -ForegroundColor Green
+            Write-HostColor -Color $Green -Message "已添加 npm 路径到 PATH"
         }
     }
 }
@@ -22,24 +33,24 @@ function Test-Node {
     $node = Get-Command node -ErrorAction SilentlyContinue
     if ($node) {
         $v = node --version
-        Write-Host "Node.js $v 已安装" -ForegroundColor Green
+        Write-HostColor -Color $Green -Message "Node.js $v 已安装"
         return $true
     }
     return $false
 }
 
 function Install-Node {
-    Write-Host "正在安装 Node.js 22 (可能需要几分钟)..." -ForegroundColor Cyan
+    Write-HostColor -Color $Cyan -Message "正在安装 Node.js 22 (可能需要几分钟)..."
     
     if (Get-Command winget -ErrorAction SilentlyContinue) {
         Write-Host "使用 winget 安装..."
         winget install -e --id OpenJS.NodeJS.LTS --accept-source-ads --accept-package-agreements --silent
         Write-Host ""
         Write-Host "=========================================="
-        Write-Host "Node.js 安装完成！" -ForegroundColor Green
+        Write-HostColor -Color $Green -Message "Node.js 安装完成！"
         Write-Host "=========================================="
         Write-Host ""
-        Write-Host "请重新打开一个 PowerShell 窗口，然后再次运行以下命令：" -ForegroundColor Yellow
+        Write-HostColor -Color $Yellow -Message "请重新打开一个 PowerShell 窗口，然后再次运行以下命令："
         Write-Host ""
         Write-Host "irm https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.ps1 | iex"
         Write-Host ""
@@ -53,7 +64,7 @@ function Install-Node {
     
     Write-Host "下载 Node.js..."
     Invoke-WebRequest -Uri "https://nodejs.org/dist/v22.12.0/node-v22.12.0-x64.msi" -OutFile $msi -UseBasicParsing
-    Write-Host "下载完成" -ForegroundColor Green
+    Write-HostColor -Color $Green -Message "下载完成"
     
     Write-Host "安装中 (可能需要几分钟)..."
     $p = Start-Process msiexec.exe -ArgumentList "/i `"$msi`" /quiet /qn /norestart" -PassThru -NoNewWindow -Wait
@@ -63,14 +74,14 @@ function Install-Node {
     Write-Host ""
     Write-Host "=========================================="
     if ($p.ExitCode -eq 0) {
-        Write-Host "Node.js 安装完成！" -ForegroundColor Green
+        Write-HostColor -Color $Green -Message "Node.js 安装完成！"
     } else {
-        Write-Host "安装失败，请手动下载: https://nodejs.org/dist/v22.12.0/node-v22.12.0-x64.msi" -ForegroundColor Red
-        Write-Host "安装完成后，请重新打开一个 PowerShell 窗口，然后再次运行以下命令：" -ForegroundColor Yellow
+        Write-HostColor -Color $Red -Message "安装失败，请手动下载: https://nodejs.org/dist/v22.12.0/node-v22.12.0-x64.msi"
+        Write-HostColor -Color $Yellow -Message "安装完成后，请重新打开一个 PowerShell 窗口，然后再次运行以下命令："
     }
     Write-Host "=========================================="
     Write-Host ""
-    Write-Host "请重新打开一个 PowerShell 窗口，然后再次运行以下命令：" -ForegroundColor Yellow
+    Write-HostColor -Color $Yellow -Message "请重新打开一个 PowerShell 窗口，然后再次运行以下命令："
     Write-Host ""
     Write-Host "irm https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.ps1 | iex"
     Write-Host ""
@@ -80,27 +91,27 @@ function Install-Node {
 
 function Install-OpenCLAW {
     Write-Host ""
-    Write-Host "正在安装 OpenCLAW (可能需要几分钟)..." -ForegroundColor Cyan
+    Write-HostColor -Color $Cyan -Message "正在安装 OpenCLAW (可能需要几分钟)..."
     
     if (Get-Command npm -ErrorAction SilentlyContinue) {
         Write-Host "清理 npm 缓存..."
         npm cache clean --force
         
         Write-Host "安装 openclaw..."
-        npm install -g openclaw --no-cache --loglevel=info
-        Write-Host "OpenCLAW 安装完成" -ForegroundColor Green
+        npm install -g openclaw --loglevel=info
+        Write-HostColor -Color $Green -Message "OpenCLAW 安装完成"
         
         Add-NpmPath
         
         Write-Host ""
         Write-Host "=========================================="
-        Write-Host "  安装完成！" -ForegroundColor Green
+        Write-HostColor -Color $Green -Message "  安装完成！"
         Write-Host "=========================================="
         Write-Host ""
         Write-Host "下一步运行：openclaw onboard --install-daemon"
         Write-Host ""
     } else {
-        Write-Host "npm 未找到，请先安装 Node.js" -ForegroundColor Red
+        Write-HostColor -Color $Red -Message "npm 未找到，请先安装 Node.js"
     }
 }
 

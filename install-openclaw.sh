@@ -82,17 +82,19 @@ install_node() {
         exit 1
     fi
     
-    echo ""
-    echo "=========================================="
-    echo -e "${GREEN}✓ Node.js 安装完成${NC}"
-    echo "=========================================="
-    echo ""
-    echo "请重新打开一个终端窗口，然后再次运行以下命令："
-    echo ""
-    echo "curl -fsSL https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.sh | bash"
-    echo ""
-    read -p "按回车键退出..."
-    exit 0
+    if [ "$os" = "windows" ]; then
+        echo ""
+        echo "=========================================="
+        echo -e "${GREEN}✓ Node.js 安装完成${NC}"
+        echo "=========================================="
+        echo ""
+        echo "请重新打开一个终端窗口，然后再次运行以下命令："
+        echo ""
+        echo "curl -fsSL https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.sh | bash"
+        echo ""
+        read -p "按回车键退出..."
+        exit 0
+    fi
 }
 
 install_node_windows() {
