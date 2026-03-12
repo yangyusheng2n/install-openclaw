@@ -67,10 +67,14 @@ function Install-Git {
     $arch = $env:PROCESSOR_ARCHITECTURE
     if ($arch -eq "ARM64") {
         $downloadUrls = @(
+            "https://ghproxy.com/https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.2/Git-2.53.0.2-arm64.exe",
+            "https://mirror.ghproxy.com/https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.2/Git-2.53.0.2-arm64.exe",
             "https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.2/Git-2.53.0.2-arm64.exe"
         )
     } else {
         $downloadUrls = @(
+            "https://ghproxy.com/https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.2/Git-2.53.0.2-64-bit.exe",
+            "https://mirror.ghproxy.com/https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.2/Git-2.53.0.2-64-bit.exe",
             "https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.2/Git-2.53.0.2-64-bit.exe"
         )
     }
