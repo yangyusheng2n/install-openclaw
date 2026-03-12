@@ -106,34 +106,51 @@ function Install-OpenCLAW {
         Write-Host "安装 openclaw..."
         Write-Host "------------------------------------------"
         
-        $psi = New-Object System.Diagnostics.ProcessStartInfo
-        $psi.FileName = "npm"
-        $psi.Arguments = "install -g openclaw"
-        $psi.UseShellExecute = $false
-        $psi.RedirectStandardOutput = $true
-        $psi.RedirectStandardError = $true
-        $psi.WorkingDirectory = $env:USERPROFILE
+        $npmPrefix = npm config get prefix
+        $env:Path = "$npmPrefix;$env:Path"
         
-        $process = [System.Diagnostics.Process]::Start($psi)
-        
-        while (-not $process.HasExited) {
-            $output = $process.StandardOutput.ReadToEnd()
-            if ($output) {
-                Write-Host $output -NoNewline
-            }
-            Start-Sleep -Milliseconds 500
-        }
-        
-        $stdout = $process.StandardOutput.ReadToEnd()
-        $stderr = $process.StandardError.ReadToEnd()
-        
-        if ($stdout) { Write-Host $stdout }
-        if ($stderr) { Write-Host $stderr -ForegroundColor Yellow }
+        npm install -g openclaw
         
         Write-Host "------------------------------------------"
-        Write-Host "OpenCLAW 安装完成" -ForegroundColor Green
+        
+        $installed = npm list -g openclaw 2>$null
+        if ($installed -like "*openclaw*") {
+            Write-Host "OpenCLAW 安装成功" -ForegroundColor Green
+        } else {
+            Write-Host "安装可能未成功，显示安装结果：" -ForegroundColor Yellow
+            npm list -g openclaw
+        }
         
         Add-NpmPath
+        
+        Write-Host ""
+        Write-Host "=========================================="
+        Write-Host "  安装完成！" -ForegroundColor Green
+        Write-Host "=========================================="
+        Write-Host ""
+        Write-Host "下一步运行以下命令完成配置：" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "  openclaw onboard --install-daemon"
+        Write-Host ""
+        Write-Host "启动 Dashboard：" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "  openclaw dashboard"
+        Write-Host ""
+        Write-Host "------------------------------------------"
+        
+        Add-NpmPath
+        
+        Write-Host ""
+        Write-Host "正在验证 openclaw 命令..."
+        
+        $openclawCmd = Get-Command openclaw -ErrorAction SilentlyContinue
+        if ($openclawCmd) {
+            Write-Host "openclaw 命令可用" -ForegroundColor Green
+        } else {
+            Write-Host "openclaw 命令暂不可用，请重新打开 PowerShell 后使用" -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "重新打开 PowerShell 后，运行以下命令：" -ForegroundColor Yellow
+        }
         
         Write-Host ""
         Write-Host "=========================================="
@@ -161,6 +178,7 @@ function Install-OpenCLAW {
         Write-Host ""
         Read-Host "按回车键退出"
     }
+}
 }
 
 # 主流程
