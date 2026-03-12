@@ -228,14 +228,8 @@ main() {
     echo ""
     
     if ! check_git; then
-        echo "OpenCLAW 安装需要 Git，是否自动安装？"
-        read -p "按 Y 确认，其他键跳过: " confirm
-        if [ "$confirm" = "Y" ] || [ "$confirm" = "y" ]; then
-            install_git
-        else
-            echo "请先安装 Git 后再运行此脚本"
-            exit 1
-        fi
+        echo "检测到 Git 未安装，OpenCLAW 安装需要 Git，正在自动安装..."
+        install_git
     fi
     
     if ! check_node; then

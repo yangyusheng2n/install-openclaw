@@ -33,21 +33,37 @@ function Install-Git {
     if (Get-Command winget -ErrorAction SilentlyContinue) {
         Write-Host "使用 winget 安装 Git..."
         winget install -e --id Git.Git --accept-source-ads --accept-package-agreements --silent
-        
-        Write-Host "刷新环境变量..."
+        Write-Host "Git 安装完成，刷新环境变量..." -ForegroundColor Green
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-        
         Start-Sleep -Seconds 3
-        
         if (Test-Git) {
-            Write-Host "Git 安装成功！" -ForegroundColor Green
             return $true
-        } else {
-            Write-Host "Git 安装后需要刷新环境变量" -ForegroundColor Yellow
         }
     }
     
-    Write-Host "请手动下载安装 Git：https://git-scm.com/download/win" -ForegroundColor Yellow
+    Write-Host "winget 安装失败，尝试直接下载安装..." -ForegroundColor Yellow
+    
+    $tmp = "$env:TEMP\git_$PID"
+    New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+    $installer = "$tmp\Git-Setup.exe"
+    
+    Write-Host "下载 Git for Windows..."
+    try {
+        Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.43.0.windows.1/Git-2.43.0-64-bit.exe" -OutFile $installer -UseBasicParsing
+        Write-Host "安装中..."
+        Start-Process $installer -ArgumentList "/VERYSILENT /NORESTART /NOCANCEL /SP- /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /COMPONENTS=\"icons,ext\reg\shellhere,assoc,assoc_sh\"" -Wait
+        Remove-Item $tmp -Recurse -Force
+        Write-Host "Git 安装完成，刷新环境变量..." -ForegroundColor Green
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        Start-Sleep -Seconds 2
+        if (Test-Git) {
+            return $true
+        }
+    } catch {
+        Write-Host "下载失败，请手动下载：https://git-scm.com/download/win" -ForegroundColor Red
+    }
+    
+    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
     return $false
 }
 
@@ -205,22 +221,12 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";"
 
 # 检查 Git 是否安装
 if (-not (Test-Git)) {
-    Write-Host "检测到 Git 未安装，OpenCLAW 安装需要 Git" -ForegroundColor Yellow
-    $installGit = Read-Host "是否自动安装 Git？(Y/N)"
-    if ($installGit -eq "Y" -or $installGit -eq "y") {
-        $gitInstalled = Install-Git
-        if (-not $gitInstalled) {
-            Write-Host "请先安装 Git 后再运行此脚本" -ForegroundColor Red
-            Write-Host "下载地址：https://git-scm.com/download/win"
-            Read-Host "按回车键退出"
-            exit 1
-        }
-        # 刷新环境变量
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-        Start-Sleep -Seconds 2
-    } else {
-        Write-Host "请先安装 Git 后再运行此脚本" -ForegroundColor Red
-        Write-Host "下载地址：https://git-scm.com/download/win"
+    Write-Host "检测到 Git 未安装，OpenCLAW 安装需要 Git，正在自动安装..." -ForegroundColor Yellow
+    Install-Git
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    Start-Sleep -Seconds 2
+    if (-not (Test-Git)) {
+        Write-Host "Git 安装失败，请手动下载：https://git-scm.com/download/win" -ForegroundColor Red
         Read-Host "按回车键退出"
         exit 1
     }
