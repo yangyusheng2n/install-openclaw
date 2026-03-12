@@ -34,7 +34,16 @@ function Install-Node {
     if (Get-Command winget -ErrorAction SilentlyContinue) {
         Write-Host "使用 winget 安装..."
         winget install -e --id OpenJS.NodeJS.LTS --accept-source-ads --accept-package-agreements --silent
-        Write-Host "安装完成，请重新打开 PowerShell 后再次运行此脚本" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "=========================================="
+        Write-Host "Node.js 安装完成！" -ForegroundColor Green
+        Write-Host "=========================================="
+        Write-Host ""
+        Write-Host "请重新打开一个 PowerShell 窗口，然后再次运行以下命令：" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "irm https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.ps1 | iex"
+        Write-Host ""
+        Read-Host "按回车键退出"
         exit 0
     }
     
@@ -51,12 +60,21 @@ function Install-Node {
     
     Remove-Item $tmp -Recurse -Force
     
+    Write-Host ""
+    Write-Host "=========================================="
     if ($p.ExitCode -eq 0) {
-        Write-Host "Node.js 安装完成" -ForegroundColor Green
+        Write-Host "Node.js 安装完成！" -ForegroundColor Green
     } else {
         Write-Host "安装失败，请手动下载: https://nodejs.org/dist/v22.12.0/node-v22.12.0-x64.msi" -ForegroundColor Red
+        Write-Host "安装完成后，请重新打开一个 PowerShell 窗口，然后再次运行以下命令：" -ForegroundColor Yellow
     }
-    Write-Host "请重新打开 PowerShell 后再次运行此脚本" -ForegroundColor Yellow
+    Write-Host "=========================================="
+    Write-Host ""
+    Write-Host "请重新打开一个 PowerShell 窗口，然后再次运行以下命令：" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "irm https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.ps1 | iex"
+    Write-Host ""
+    Read-Host "按回车键退出"
     exit 0
 }
 
