@@ -11,13 +11,53 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-detect_os() {
-    case "$(uname -s)" in
-        Linux*)     echo "linux";;
-        Darwin*)    echo "macos";;
-        CYGWIN*|MINGW*|MSYS*) echo "windows";;
-        *)          echo "unknown";;
-    esac
+check_git() {
+    if command -v git &> /dev/null; then
+        echo -e "${GREEN}✓ Git 已安装${NC}"
+        return 0
+    else
+        echo -e "${YELLOW}⚠ Git 未安装，OpenCLAW 安装需要 Git${NC}"
+        return 1
+    fi
+}
+
+install_git() {
+    local os=$(detect_os)
+    echo "正在安装 Git..."
+    
+    if [ "$os" = "macos" ]; then
+        if command -v brew &> /dev/null; then
+            brew install git
+        else
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            brew install git
+        fi
+    elif [ "$os" = "linux" ]; then
+        if command -v apt-get &> /dev/null; then
+            if [ "$EUID" -ne 0 ]; then
+                echo -e "${YELLOW}⚠ 需要 sudo 权限安装 Git${NC}"
+            fi
+            apt-get update && apt-get install -y git
+        elif command -v yum &> /dev/null; then
+            if [ "$EUID" -ne 0 ]; then
+                echo -e "${YELLOW}⚠ 需要 sudo 权限安装 Git${NC}"
+            fi
+            yum install -y git
+        elif command -v dnf &> /dev/null; then
+            if [ "$EUID" -ne 0 ]; then
+                echo -e "${YELLOW}⚠ 需要 sudo 权限安装 Git${NC}"
+            fi
+            dnf install -y git
+        elif command -v pacman &> /dev/null; then
+            pacman -S --noconfirm git
+        fi
+    fi
+    
+    if check_git; then
+        echo -e "${GREEN}✓ Git 安装成功${NC}"
+    else
+        echo -e "${RED}✗ Git 安装失败，请手动安装${NC}"
+    fi
 }
 
 check_node() {
@@ -186,6 +226,17 @@ main() {
     local os=$(detect_os)
     echo "检测到操作系统: $os"
     echo ""
+    
+    if ! check_git; then
+        echo "OpenCLAW 安装需要 Git，是否自动安装？"
+        read -p "按 Y 确认，其他键跳过: " confirm
+        if [ "$confirm" = "Y" ] || [ "$confirm" = "y" ]; then
+            install_git
+        else
+            echo "请先安装 Git 后再运行此脚本"
+            exit 1
+        fi
+    fi
     
     if ! check_node; then
         install_node
