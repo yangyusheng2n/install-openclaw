@@ -47,9 +47,16 @@ function Install-Git {
     New-Item -ItemType Directory -Force -Path $tmp | Out-Null
     $installer = "$tmp\Git-Setup.exe"
     
-    $downloadUrls = @(
-        "https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.2/Git-2.53.0.2-64-bit.exe"
-    )
+    $arch = $env:PROCESSOR_ARCHITECTURE
+    if ($arch -eq "ARM64") {
+        $downloadUrls = @(
+            "https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.2/Git-2.53.0.2-arm64.exe"
+        )
+    } else {
+        $downloadUrls = @(
+            "https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.2/Git-2.53.0.2-64-bit.exe"
+        )
+    }
     
     $downloaded = $false
     foreach ($url in $downloadUrls) {
