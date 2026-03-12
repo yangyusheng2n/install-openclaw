@@ -29,7 +29,7 @@ function Test-Node {
 }
 
 function Install-Node {
-    Write-Host "正在安装 Node.js 22..." -ForegroundColor Cyan
+    Write-Host "正在安装 Node.js 22 (可能需要几分钟)..." -ForegroundColor Cyan
     
     if (Get-Command winget -ErrorAction SilentlyContinue) {
         Write-Host "使用 winget 安装..."
@@ -44,12 +44,19 @@ function Install-Node {
     
     Write-Host "下载 Node.js..."
     Invoke-WebRequest -Uri "https://nodejs.org/dist/v22.12.0/node-v22.12.0-x64.msi" -OutFile $msi -UseBasicParsing
+    Write-Host "下载完成" -ForegroundColor Green
     
-    Write-Host "安装中..."
-    Start-Process msiexec.exe -ArgumentList "/i `"$msi`" /quiet /qn /norestart" -Wait
+    Write-Host "安装中 (可能需要几分钟)..."
+    $p = Start-Process msiexec.exe -ArgumentList "/i `"$msi`" /quiet /qn /norestart" -PassThru -NoNewWindow -Wait
     
     Remove-Item $tmp -Recurse -Force
-    Write-Host "安装完成，请重新打开 PowerShell 后再次运行此脚本" -ForegroundColor Yellow
+    
+    if ($p.ExitCode -eq 0) {
+        Write-Host "Node.js 安装完成" -ForegroundColor Green
+    } else {
+        Write-Host "安装失败，请手动下载: https://nodejs.org/dist/v22.12.0/node-v22.12.0-x64.msi" -ForegroundColor Red
+    }
+    Write-Host "请重新打开 PowerShell 后再次运行此脚本" -ForegroundColor Yellow
     exit 0
 }
 
