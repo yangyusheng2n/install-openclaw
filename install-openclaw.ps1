@@ -124,23 +124,6 @@ function Install-OpenCLAW {
         Add-NpmPath
         
         Write-Host ""
-        Write-Host "=========================================="
-        Write-Host "  安装完成！" -ForegroundColor Green
-        Write-Host "=========================================="
-        Write-Host ""
-        Write-Host "下一步运行以下命令完成配置：" -ForegroundColor Yellow
-        Write-Host ""
-        Write-Host "  openclaw onboard --install-daemon"
-        Write-Host ""
-        Write-Host "启动 Dashboard：" -ForegroundColor Yellow
-        Write-Host ""
-        Write-Host "  openclaw dashboard"
-        Write-Host ""
-        Write-Host "------------------------------------------"
-        
-        Add-NpmPath
-        
-        Write-Host ""
         Write-Host "正在验证 openclaw 命令..."
         
         $openclawCmd = Get-Command openclaw -ErrorAction SilentlyContinue
@@ -148,8 +131,6 @@ function Install-OpenCLAW {
             Write-Host "openclaw 命令可用" -ForegroundColor Green
         } else {
             Write-Host "openclaw 命令暂不可用，请重新打开 PowerShell 后使用" -ForegroundColor Yellow
-            Write-Host ""
-            Write-Host "重新打开 PowerShell 后，运行以下命令：" -ForegroundColor Yellow
         }
         
         Write-Host ""
@@ -178,7 +159,6 @@ function Install-OpenCLAW {
         Write-Host ""
         Read-Host "按回车键退出"
     }
-}
 }
 
 # 主流程
