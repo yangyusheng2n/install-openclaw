@@ -41,29 +41,51 @@ function Install-Git {
         }
     }
     
-    Write-Host "winget 安装失败，尝试直接下载安装..." -ForegroundColor Yellow
+    Write-Host "正在下载 Git for Windows..." -ForegroundColor Yellow
     
     $tmp = "$env:TEMP\git_$PID"
     New-Item -ItemType Directory -Force -Path $tmp | Out-Null
     $installer = "$tmp\Git-Setup.exe"
     
-    Write-Host "下载 Git for Windows..."
-    try {
-        Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.43.0.windows.1/Git-2.43.0-64-bit.exe" -OutFile $installer -UseBasicParsing
-        Write-Host "安装中..."
-        Start-Process $installer -ArgumentList "/VERYSILENT /NORESTART /NOCANCEL /SP- /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /COMPONENTS=\"icons,ext\reg\shellhere,assoc,assoc_sh\"" -Wait
-        Remove-Item $tmp -Recurse -Force
-        Write-Host "Git 安装完成，刷新环境变量..." -ForegroundColor Green
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-        Start-Sleep -Seconds 2
-        if (Test-Git) {
-            return $true
+    $downloadUrls = @(
+        "https://github.com/git-for-windows/git/releases/download/v2.43.0.windows.1/Git-2.43.0-64-bit.exe",
+        "https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/Git-2.42.0-64-bit.exe"
+    )
+    
+    $downloaded = $false
+    foreach ($url in $downloadUrls) {
+        try {
+            Write-Host "尝试下载: $url"
+            Invoke-WebRequest -Uri $url -OutFile $installer -UseBasicParsing -TimeoutSec 120
+            if (Test-Path $installer) {
+                $downloaded = $true
+                break
+            }
+        } catch {
+            Write-Host "下载失败，尝试下一个链接..."
         }
-    } catch {
-        Write-Host "下载失败，请手动下载：https://git-scm.com/download/win" -ForegroundColor Red
     }
     
-    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+    if (-not $downloaded) {
+        Write-Host "自动下载失败，请手动下载安装：https://git-scm.com/download/win" -ForegroundColor Red
+        Write-Host "安装完成后重新运行此脚本" -ForegroundColor Yellow
+        Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+        Read-Host "按回车键退出"
+        exit 1
+    }
+    
+    Write-Host "安装中..."
+    Start-Process $installer -ArgumentList "/VERYSILENT /NORESTART /NOCANCEL /SP-" -Wait
+    Remove-Item $tmp -Recurse -Force
+    
+    Write-Host "Git 安装完成，刷新环境变量..." -ForegroundColor Green
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    Start-Sleep -Seconds 2
+    
+    if (Test-Git) {
+        return $true
+    }
+    
     return $false
 }
 
