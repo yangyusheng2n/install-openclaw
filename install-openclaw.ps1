@@ -18,6 +18,34 @@ function Add-NpmPath {
     }
 }
 
+function Test-Git {
+    $git = Get-Command git -ErrorAction SilentlyContinue
+    if ($git) {
+        Write-Host "Git 已安装" -ForegroundColor Green
+        return $true
+    }
+    return $false
+}
+
+function Install-Git {
+    Write-Host "正在安装 Git..." -ForegroundColor Cyan
+    
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        Write-Host "使用 winget 安装 Git..."
+        winget install -e --id Git.Git --accept-source-ads --accept-package-agreements --silent
+        
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        
+        if (Test-Git) {
+            Write-Host "Git 安装成功！" -ForegroundColor Green
+            return $true
+        }
+    }
+    
+    Write-Host "请手动下载安装 Git：https://git-scm.com/download/win" -ForegroundColor Yellow
+    return $false
+}
+
 function Test-Node {
     $node = Get-Command node -ErrorAction SilentlyContinue
     if ($node) {
@@ -166,6 +194,23 @@ Write-Host "检测操作系统: Windows"
 Write-Host ""
 
 Add-NpmPath
+
+# 刷新环境变量
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+# 检查 Git 是否安装
+if (-not (Test-Git)) {
+    Write-Host "检测到 Git 未安装，OpenCLAW 安装需要 Git" -ForegroundColor Yellow
+    $installGit = Read-Host "是否自动安装 Git？(Y/N)"
+    if ($installGit -eq "Y" -or $installGit -eq "y") {
+        Install-Git
+    } else {
+        Write-Host "请先安装 Git 后再运行此脚本" -ForegroundColor Red
+        Write-Host "下载地址：https://git-scm.com/download/win"
+        Read-Host "按回车键退出"
+        exit 1
+    }
+}
 
 if (-not (Test-Node)) {
     Install-Node
