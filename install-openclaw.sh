@@ -266,6 +266,9 @@ main() {
         fi
     fi
     
+    echo "刷新环境变量..."
+    export PATH="$(npm config get prefix 2>/dev/null || echo /usr/local)/bin:$PATH"
+    
     echo ""
     install_openclaw
     
