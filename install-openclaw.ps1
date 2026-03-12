@@ -58,8 +58,11 @@ function Install-OpenCLAW {
     Write-Host "正在安装 OpenCLAW (可能需要几分钟)..." -ForegroundColor Cyan
     
     if (Get-Command npm -ErrorAction SilentlyContinue) {
-        $env:npm_config_loglevel = "verbose"
-        npm install -g openclaw --loglevel=verbose
+        Write-Host "清理 npm 缓存..."
+        npm cache clean --force
+        
+        Write-Host "安装 openclaw..."
+        npm install -g openclaw --no-cache --loglevel=info
         Write-Host "OpenCLAW 安装完成" -ForegroundColor Green
         
         Add-NpmPath
