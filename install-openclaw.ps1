@@ -33,10 +33,27 @@ function Install-Git {
     if (Get-Command winget -ErrorAction SilentlyContinue) {
         Write-Host "使用 winget 安装 Git..."
         winget install -e --id Git.Git --accept-source-ads --accept-package-agreements --silent
-        Write-Host "Git 安装完成，刷新环境变量..." -ForegroundColor Green
+        
+        Write-Host "刷新环境变量..."
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        
+        Start-Sleep -Seconds 3
+        
+        if (Test-Git) {
+            Write-Host "Git 安装成功！" -ForegroundColor Green
+            return $true
+        }
+        
+        Write-Host "winget 安装的 Git 可能需要手动添加到 PATH" -ForegroundColor Yellow
+    }
+    
+    Write-Host "尝试使用 chocolatey 安装 Git..." -ForegroundColor Yellow
+    if (Get-Command choco -ErrorAction SilentlyContinue) {
+        choco install git -y
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
         Start-Sleep -Seconds 3
         if (Test-Git) {
+            Write-Host "Git 安装成功！" -ForegroundColor Green
             return $true
         }
     }
@@ -61,32 +78,42 @@ function Install-Git {
     $downloaded = $false
     foreach ($url in $downloadUrls) {
         try {
-            Write-Host "尝试下载: $url"
-            Invoke-WebRequest -Uri $url -OutFile $installer -UseBasicParsing -TimeoutSec 120
-            if (Test-Path $installer) {
+            Write-Host "下载: $url"
+            Invoke-WebRequest -Uri $url -OutFile $installer -UseBasicParsing -TimeoutSec 180
+            if ((Test-Path $installer) -and (Get-Item $installer).Length -gt 1000000) {
                 $downloaded = $true
+                Write-Host "下载完成" -ForegroundColor Green
                 break
             }
         } catch {
-            Write-Host "下载失败，尝试下一个链接..."
+            Write-Host "下载失败: $_"
         }
     }
     
     if (-not $downloaded) {
-        Write-Host "自动下载失败，请手动下载安装：https://git-scm.com/download/win" -ForegroundColor Red
-        Write-Host "安装完成后重新运行此脚本" -ForegroundColor Yellow
+        Write-Host "自动下载失败，请手动下载安装" -ForegroundColor Red
+        Write-Host "下载地址：https://git-scm.com/download/win" -ForegroundColor Yellow
+        Write-Host "或者使用：winget install Git.Git" -ForegroundColor Yellow
         Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
         Read-Host "按回车键退出"
         exit 1
     }
     
-    Write-Host "安装中..."
+    Write-Host "安装中 (可能需要几分钟)..."
     Start-Process $installer -ArgumentList "/VERYSILENT /NORESTART /NOCANCEL /SP-" -Wait
     Remove-Item $tmp -Recurse -Force
     
     Write-Host "Git 安装完成，刷新环境变量..." -ForegroundColor Green
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
     Start-Sleep -Seconds 2
+    
+    if (Test-Git) {
+        Write-Host "Git 验证成功！" -ForegroundColor Green
+        return $true
+    }
+    
+    return $false
+}
     
     if (Test-Git) {
         return $true
