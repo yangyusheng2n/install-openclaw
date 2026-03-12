@@ -8,6 +8,7 @@ echo "=========================================="
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
 detect_os() {
@@ -200,7 +201,16 @@ main() {
         fi
         
         if ! check_node; then
-            echo -e "${YELLOW}⚠ Node.js 安装完成，请重新打开终端后再次运行此脚本${NC}"
+            echo ""
+            echo "=========================================="
+            echo -e "${YELLOW}⚠ Node.js 安装完成${NC}"
+            echo "=========================================="
+            echo ""
+            echo "请重新打开一个终端窗口，然后再次运行以下命令："
+            echo ""
+            echo "curl -fsSL https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.sh | bash"
+            echo ""
+            read -p "按回车键退出..."
             exit 0
         fi
     fi
@@ -213,17 +223,22 @@ main() {
     echo -e "${GREEN}  安装完成！${NC}"
     echo "=========================================="
     echo ""
-    echo "下一步运行以下命令完成配置："
+    echo -e "${YELLOW}下一步运行以下命令完成配置：${NC}"
+    echo ""
     echo "  openclaw onboard --install-daemon"
     echo ""
-    echo "启动 Dashboard:"
+    echo -e "${YELLOW}启动 Dashboard：${NC}"
+    echo ""
     echo "  openclaw dashboard"
     echo ""
     echo "------------------------------------------"
-    echo "💡 SiliconFlow 邀请链接 (送积分):"
+    echo -e "${CYAN}SiliconFlow 邀请链接 (送积分)：${NC}"
     echo "  https://cloud.siliconflow.cn/i/ABtlZLIj"
     echo "------------------------------------------"
     echo ""
+    echo -e "${GREEN}感谢使用 OpenCLAW！${NC}"
+    echo ""
+    read -p "按回车键退出..."
 }
 
 main "$@"

@@ -95,10 +95,10 @@ function Install-OpenCLAW {
     
     if (Get-Command npm -ErrorAction SilentlyContinue) {
         Write-Host "清理 npm 缓存..."
-        npm cache clean --force
+        npm cache clean --force 2>$null
         
         Write-Host "安装 openclaw..."
-        npm install -g openclaw --loglevel=info
+        npm install -g openclaw --loglevel=info 2>$null
         Write-HostColor -Color $Green -Message "OpenCLAW 安装完成"
         
         Add-NpmPath
@@ -108,10 +108,26 @@ function Install-OpenCLAW {
         Write-HostColor -Color $Green -Message "  安装完成！"
         Write-Host "=========================================="
         Write-Host ""
-        Write-Host "下一步运行：openclaw onboard --install-daemon"
+        Write-HostColor -Color $Yellow -Message "下一步运行以下命令完成配置："
         Write-Host ""
+        Write-Host "  openclaw onboard --install-daemon"
+        Write-Host ""
+        Write-HostColor -Color $Yellow -Message "启动 Dashboard："
+        Write-Host ""
+        Write-Host "  openclaw dashboard"
+        Write-Host ""
+        Write-Host "------------------------------------------"
+        Write-HostColor -Color $Cyan -Message "SiliconFlow 邀请链接 (送积分)："
+        Write-Host "  https://cloud.siliconflow.cn/i/ABtlZLIj"
+        Write-Host "------------------------------------------"
+        Write-Host ""
+        Write-HostColor -Color $Green -Message "感谢使用 OpenCLAW！"
+        Write-Host ""
+        Read-Host "按回车键退出"
     } else {
         Write-HostColor -Color $Red -Message "npm 未找到，请先安装 Node.js"
+        Write-Host ""
+        Read-Host "按回车键退出"
     }
 }
 
