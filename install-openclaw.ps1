@@ -10,6 +10,10 @@ Write-Host "  OpenCLAW 自动安装脚本 (Windows)" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host ""
 
+$os = "windows"
+Write-Host "检测到操作系统: $os"
+Write-Host ""
+
 function Add-NpmToPath {
     try {
         $npmPrefix = npm config get prefix 2>$null
@@ -167,9 +171,6 @@ function Install-OpenCLAW {
 }
 
 # 主流程
-$os = Get-OS
-Write-Host "检测到操作系统: $os"
-Write-Host ""
 
 # 刷新环境变量并添加 npm 路径到 PATH
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
