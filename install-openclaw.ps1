@@ -118,13 +118,6 @@ function Install-Git {
     
     return $false
 }
-    
-    if (Test-Git) {
-        return $true
-    }
-    
-    return $false
-}
 
 function Test-Node {
     $node = Get-Command node -ErrorAction SilentlyContinue
