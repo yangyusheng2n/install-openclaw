@@ -41,6 +41,13 @@ function Install-Git {
             Write-Host "Git 安装成功！" -ForegroundColor Green
             return $true
         }
+        
+        Start-Sleep -Seconds 2
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        if (Test-Git) {
+            Write-Host "Git 安装成功！" -ForegroundColor Green
+            return $true
+        }
     }
     
     Write-Host "请手动安装 Git：" -ForegroundColor Yellow
@@ -66,9 +73,29 @@ function Install-Node {
     if (Get-Command winget -ErrorAction SilentlyContinue) {
         Write-Host "使用 winget 安装..."
         winget install -e --id OpenJS.NodeJS.LTS --accept-source-ads --accept-package-agreements --silent
+        
+        Write-Host "刷新环境变量..."
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        
+        Add-NpmPath
+        Start-Sleep -Seconds 3
+        
+        if (Test-Node) {
+            Write-Host "Node.js 安装成功！" -ForegroundColor Green
+            return $true
+        }
+        
+        Start-Sleep -Seconds 2
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        Add-NpmPath
+        
+        if (Test-Node) {
+            Write-Host "Node.js 安装成功！" -ForegroundColor Green
+            return $true
+        }
+        
         Write-Host ""
-        Write-Host "Node.js 安装完成！" -ForegroundColor Green
-        Write-Host "请重新打开 PowerShell 后运行：" -ForegroundColor Yellow
+        Write-Host "Node.js 安装完成，请重新打开 PowerShell 后运行：" -ForegroundColor Yellow
         Write-Host "irm https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.ps1 | iex"
         Read-Host "按回车键退出"
         exit 0
@@ -128,7 +155,9 @@ if (-not (Test-Git)) {
 }
 
 if (-not (Test-Node)) {
-    Install-Node
+    $nodeResult = Install-Node
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    Add-NpmPath
 }
 
 if (Test-Node) {
