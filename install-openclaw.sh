@@ -146,23 +146,54 @@ main() {
     if ! check_git; then
         echo "检测到 Git 未安装，正在安装..."
         install_git
+        
+        export PATH="/opt/homebrew/bin:$PATH"
+        export PATH="/usr/local/bin:$PATH"
+        
+        if ! check_git; then
+            if [ -f /etc/profile ]; then
+                source /etc/profile
+            fi
+            if [ -f ~/.bashrc ]; then
+                source ~/.bashrc
+            fi
+            if [ -f ~/.zshrc ]; then
+                source ~/.zshrc
+            fi
+        fi
     fi
     
     if ! check_node; then
         install_node
         
+        export PATH="/opt/homebrew/bin:$PATH"
+        export PATH="/usr/local/bin:$PATH"
+        export PATH="$HOME/.nvm/versions/node/*/bin:$PATH"
+        
         if ! check_node; then
-            echo ""
-            echo "=========================================="
-            echo -e "${YELLOW}Node.js 安装完成${NC}"
-            echo "=========================================="
-            echo ""
-            echo "请重新打开终端，然后再次运行以下命令："
-            echo ""
-            echo "curl -fsSL https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.sh | bash"
-            echo ""
-            read -p "按回车键退出..."
-            exit 0
+            if [ -f /etc/profile ]; then
+                source /etc/profile
+            fi
+            if [ -f ~/.bashrc ]; then
+                source ~/.bashrc
+            fi
+            if [ -f ~/.zshrc ]; then
+                source ~/.zshrc
+            fi
+            
+            if ! check_node; then
+                echo ""
+                echo "=========================================="
+                echo -e "${YELLOW}Node.js 安装完成${NC}"
+                echo "=========================================="
+                echo ""
+                echo "请重新打开终端，然后再次运行以下命令："
+                echo ""
+                echo "curl -fsSL https://gitee.com/yangyusheng2n/install-openclaw/raw/master/install-openclaw.sh | bash"
+                echo ""
+                read -p "按回车键退出..."
+                exit 0
+            fi
         fi
     fi
     
