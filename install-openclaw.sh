@@ -20,6 +20,47 @@ detect_os() {
     esac
 }
 
+check_git() {
+    if command -v git &> /dev/null; then
+        return 0
+    fi
+    return 1
+}
+
+install_git() {
+    local os=$(detect_os)
+    echo "正在安装 Git..."
+    
+    if [ "$os" = "macos" ]; then
+        if command -v brew &> /dev/null; then
+            brew install git
+        else
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            export PATH="/opt/homebrew/bin:$PATH"
+            brew install git
+        fi
+    elif [ "$os" = "linux" ]; then
+        if command -v apt-get &> /dev/null; then
+            [ "$EUID" -eq 0 ] || echo "需要 sudo 权限"
+            apt-get update && apt-get install -y git
+        elif command -v yum &> /dev/null; then
+            [ "$EUID" -eq 0 ] || echo "需要 sudo 权限"
+            yum install -y git
+        elif command -v dnf &> /dev/null; then
+            [ "$EUID" -eq 0 ] || echo "需要 sudo 权限"
+            dnf install -y git
+        elif command -v pacman &> /dev/null; then
+            pacman -S --noconfirm git
+        fi
+    fi
+    
+    if check_git; then
+        echo -e "${GREEN}✓ Git 安装成功${NC}"
+    else
+        echo -e "${RED}✗ Git 安装失败，请手动安装${NC}"
+    fi
+}
+
 check_node() {
     if command -v node &> /dev/null; then
         local node_version=$(node --version 2>/dev/null | sed 's/v//')
@@ -100,6 +141,12 @@ main() {
     
     export PATH="/opt/homebrew/bin:$PATH"
     export PATH="/usr/local/bin:$PATH"
+    
+    # 检查并安装 Git
+    if ! check_git; then
+        echo "检测到 Git 未安装，正在安装..."
+        install_git
+    fi
     
     if ! check_node; then
         install_node
